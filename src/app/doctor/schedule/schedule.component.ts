@@ -23,7 +23,7 @@ export class DoctorScheduleComponent implements OnInit {
     '14:00','14:30','15:00','15:30','16:00','16:30','17:00'
   ];
  
-  constructor(private http: HttpClient, private auth: AuthService) {
+  constructor(private http: HttpClient, public auth: AuthService) {
     this.doctorId = this.auth.getProfileId();
   }
  

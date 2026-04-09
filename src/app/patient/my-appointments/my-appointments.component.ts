@@ -22,7 +22,7 @@ export class MyAppointmentsComponent implements OnInit {
   statusOptions = ['', 'Pending', 'Confirmed', 'Completed', 'Cancelled', 'NoShow'];
   modeOptions = ['', 'Online', 'Offline'];
  
-  constructor(private http: HttpClient, private auth: AuthService) {
+  constructor(private http: HttpClient, public auth: AuthService) {
     this.patientId = this.auth.getProfileId();
   }
  

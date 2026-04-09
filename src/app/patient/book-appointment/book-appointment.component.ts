@@ -34,7 +34,7 @@ export class BookAppointmentComponent implements OnInit {
  
   minDate: string;
  
-  constructor(private http: HttpClient, private auth: AuthService,
+  constructor(private http: HttpClient, public auth: AuthService,
               private router: Router) {
     const today = new Date();
     this.minDate = today.toISOString().split('T')[0];

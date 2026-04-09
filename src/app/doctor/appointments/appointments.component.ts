@@ -18,7 +18,7 @@ export class DoctorAppointmentsComponent implements OnInit {
   loading = true;
   doctorId: number;
  
-  constructor(private http: HttpClient, private auth: AuthService) {
+  constructor(private http: HttpClient, public auth: AuthService) {
     this.doctorId = this.auth.getProfileId();
   }
  

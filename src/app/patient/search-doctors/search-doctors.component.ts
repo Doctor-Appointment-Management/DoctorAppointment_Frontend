@@ -31,7 +31,7 @@ export class SearchDoctorsComponent implements OnInit {
 
   constructor(
     private http: HttpClient,
-    private auth: AuthService,
+    public auth: AuthService,
     private router: Router
   ) {}
 
