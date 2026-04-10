@@ -506,6 +506,42 @@ body {
   @include btn-secondary;
 }
 
+.btn-success {
+  @include btn-base;
+  background: #28a745;
+  color: $white;
+
+  &:hover:not(:disabled) {
+    opacity: 0.92;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px rgba(40, 167, 69, 0.18);
+  }
+}
+
+.btn-info {
+  @include btn-base;
+  background: #0dcaf0;
+  color: $white;
+
+  &:hover:not(:disabled) {
+    opacity: 0.92;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px rgba(13, 202, 240, 0.18);
+  }
+}
+
+.btn-warning {
+  @include btn-base;
+  background: #ffc107;
+  color: #1f2d3d;
+
+  &:hover:not(:disabled) {
+    opacity: 0.92;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px rgba(255, 193, 7, 0.18);
+  }
+}
+
 .btn-danger {
   @include btn-danger;
 }
@@ -513,6 +549,13 @@ body {
 .btn-sm {
   padding: $spacing-sm $spacing-md;
   font-size: $font-size-sm;
+}
+
+.btn-danger-sm {
+  @include btn-danger;
+  padding: $spacing-xs $spacing-md;
+  font-size: $font-size-xs;
+  border-radius: $radius-sm;
 }
 
 .btn-lg {
@@ -550,6 +593,10 @@ body {
   td {
     padding: $spacing-sm;
     background: rgba($primary, 0.02);
+  }
+
+  tbody tr:hover td {
+    background: rgba($secondary, 0.08);
   }
 
   tr:last-child td {

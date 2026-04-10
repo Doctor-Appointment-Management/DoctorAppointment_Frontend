@@ -14,6 +14,7 @@ const API = 'http://localhost:5199/api';
 })
 export class SearchDoctorsComponent implements OnInit {
   specializations: any[] = [];
+  allDoctors: any[] = [];
   availableDoctors: any[] = [];
   selectedSpec   = 0;
   selectedMode   = '';
@@ -29,6 +30,16 @@ export class SearchDoctorsComponent implements OnInit {
     '14:00','14:30','15:00','15:30','16:00','16:30','17:00'
   ];
 
+
+filters = {
+  specializationId: '',
+  mode: '',
+  date: ''
+};
+
+
+
+/* ✅ LOAD SPECIALIZATION */
   constructor(
     private http: HttpClient,
     public auth: AuthService,
@@ -36,10 +47,32 @@ export class SearchDoctorsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.http.get(`${API}/specialization`)
-      .subscribe((data: any) => this.specializations = data);
-  }
+  this.loadAllDoctors();
+    this.loadSpecializations();
 
+}
+  loadAllDoctors(): void {
+    this.http.get(`${API}/admin/doctors`).subscribe({
+      next: (data: any) => {
+        this.allDoctors = data || [];
+        this.availableDoctors = [...this.allDoctors];
+      },
+      error: () => {
+        this.allDoctors = [];
+        this.availableDoctors = [];
+        console.error('Failed to load doctors from backend');
+      }
+    });
+  }
+loadSpecializations(): void {
+  this.http.get(`${API}/specialization`).subscribe({
+    next: (res: any) => {
+      console.log("SPECIALIZATIONS:", res);
+      this.specializations = res;
+    },
+    error: (err: any) => console.error(err)
+  });
+}
   
 // Add these to search-doctors.component.ts (inside the class)
  
@@ -54,28 +87,54 @@ export class SearchDoctorsComponent implements OnInit {
     return this.specializations.filter((s: any) => s.category === cat);
   }
 
+  hasFilters(): boolean {
+    return !!(this.selectedSpec || this.selectedMode || this.selectedDate);
+  }
 
-  searchDoctors(): void {
-    const params: any = {};
-    if (this.selectedSpec) params.specializationId = this.selectedSpec.toString();
-    if (this.selectedMode) params.mode = this.selectedMode;
-    if (this.selectedDate) params.date = this.selectedDate;
+ availableSlotCount(doc: any): number {
+  if (!this.selectedDate) return 13;
+  return 13 - (doc.bookedSlots?.length ?? 0);
+}
 
-    if (Object.keys(params).length === 0) {
-      Swal.fire('No Filters', 'Please select at least one filter.', 'warning');
-      return;
+  getSpecializationLabel(doc: any): string {
+    if (!doc) {
+      return 'General';
     }
+    return doc.specialization || 'General';
+  }
 
-    this.loading = true;
-    this.http.get(`${API}/appointment/available-doctors`, { params }).subscribe({
+ searchDoctors(): void {
+  const params: any = {};
+
+  if (this.selectedSpec && this.selectedSpec != 0)
+    params.specializationId = this.selectedSpec;
+
+  if (this.selectedMode)
+    params.mode = this.selectedMode;
+
+  if (this.selectedDate)
+    params.date = this.selectedDate;
+
+  this.selectedDoctor = null;
+  this.loading = true;
+
+  this.http.get(`${API}/appointment/available-doctors`, { params })
+    .subscribe({
       next: (data: any) => {
         this.availableDoctors = data;
         this.noAvailability = data.length === 0;
         this.loading = false;
       },
-      error: () => { this.loading = false; }
+      error: () => {
+        console.error("API failed");
+        this.loading = false;
+      }
     });
-  }
+}
+
+onFilterChange(): void {
+  this.searchDoctors();
+}
 
   selectDoctor(doctor: any): void {
     this.selectedDoctor = doctor;
@@ -91,10 +150,11 @@ export class SearchDoctorsComponent implements OnInit {
       Swal.fire('Select Time', 'Please select a doctor and time slot.', 'warning');
       return;
     }
+    
 
     const payload = {
       patientId:        this.auth.getProfileId(),
-      doctorId:         this.selectedDoctor.doctorId,
+      doctorId:         this.selectedDoctor.id,
       specializationId: this.selectedSpec,
       appointmentDate:  this.selectedDate,
       appointmentTime:  this.selectedTime,

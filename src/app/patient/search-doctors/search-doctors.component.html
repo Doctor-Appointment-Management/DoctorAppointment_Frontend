@@ -20,7 +20,7 @@
         <div class="search-grid search-grid-with-button">
           <div class="form-group">
             <label>Specialty</label>
-            <select class="form-control" [(ngModel)]="selectedSpec">
+            <select class="form-control" [(ngModel)]="selectedSpec" (ngModelChange)="onFilterChange()">
               <option [value]="0">-- Select --</option>
               <optgroup *ngFor="let cat of getGroups()" [label]="cat">
                 <option *ngFor="let s of getByCategory(cat)" [value]="s.id">{{ s.name }}</option>
@@ -29,7 +29,7 @@
           </div>
           <div class="form-group">
             <label>Mode</label>
-            <select class="form-control" [(ngModel)]="selectedMode">
+            <select class="form-control" [(ngModel)]="selectedMode" (ngModelChange)="onFilterChange()">
               <option value="">-- Select --</option>
               <option value="Online">🌐 Online</option>
               <option value="Offline">🏥 Offline</option>
@@ -37,7 +37,7 @@
           </div>
           <div class="form-group">
             <label>Date</label>
-            <input type="date" class="form-control" [(ngModel)]="selectedDate"
+            <input type="date" class="form-control" [(ngModel)]="selectedDate" (ngModelChange)="onFilterChange()"
                    [min]="today">
           </div>
           <button class="btn-primary btn-sm search-button" (click)="searchDoctors()" [disabled]="loading">
@@ -50,38 +50,77 @@
  
     <!-- Not Available Alert -->
     <div *ngIf="noAvailability && !loading" class="alert alert-warning">
-      <strong>⚠ Not Available</strong> — All doctors for this specialty and mode are fully booked on this date.
-      Please choose a different date or mode.
+      <strong>⚠ Not Available</strong> — No doctors available for the selected filters.
+      Please try different options.
     </div>
  
     <!-- Doctor List -->
     <div *ngIf="availableDoctors.length > 0 && !selectedDoctor" class="card">
-      <div class="card-header"><h2>Available Doctors ({{ availableDoctors.length }})</h2></div>
-      <div class="card-body">
-        <div class="doctor-list">
-          <div *ngFor="let doc of availableDoctors" class="doctor-card" (click)="selectDoctor(doc)">
-            <div class="doctor-avatar">
-              <img *ngIf="doc.profilePhoto" [src]="doc.profilePhoto" alt="Photo"
-                   style="width:60px;height:60px;border-radius:50%;object-fit:cover;">
-              <span *ngIf="!doc.profilePhoto" class="avatar-placeholder">👨‍⚕️</span>
-            </div>
-            <div class="doctor-details">
-              <h3>Dr. {{ doc.doctorName }}</h3>
-              <p>{{ doc.degree }}</p>
-              <p class="exp">{{ doc.experience }} years experience</p>
-              <div class="slots-info">
-                <span class="badge-info" style="padding:4px 10px;border-radius:12px;font-size:12px;">
-                  {{ 13 - doc.bookedSlots.length }} slots available
-                </span>
-                <span [class]="'mode-badge ' + doc.mode.toLowerCase()">{{ doc.mode }}</span>
-              </div>
-            </div>
-            <div class="select-arrow">→</div>
-          </div>
-        </div>
-      </div>
+  <div class="card-header">
+    <h2>Doctors in Hospital ({{ availableDoctors.length }})</h2>
+  </div>
+
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="doctor-table">
+        <thead>
+          <tr>
+            <th>Doctor</th>
+            <th>Specialty</th>
+            <th>Mode</th>
+            <th>Experience</th>
+            <th>Available Slots</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let doc of availableDoctors">
+
+            <!-- Doctor Name -->
+            <td>Dr. {{ doc.doctorName || doc.name }}</td>
+
+            <!-- Specialty -->
+            <td>{{ doc.specialization || '-' }}</td>
+
+            <!-- ✅ MODE (UPDATED) -->
+            <td>
+              <span [ngClass]="{
+                'mode-badge': true,
+                'online': doc.mode === 'Online',
+                'offline': doc.mode === 'Offline',
+                'both': doc.mode === 'Both'
+              }">
+                {{ doc.mode === 'Both' ? 'Online & Offline' : doc.mode }}
+              </span>
+            </td>
+
+            <!-- Experience -->
+            <td>{{ doc.experience || '-' }} yrs</td>
+
+            <!-- ✅ AVAILABLE SLOTS -->
+            <td>
+              <span class="slot-badge">
+                {{ doc.availableSlots }} slots
+              </span>
+            </td>
+
+            <!-- Action -->
+            <td>
+              <button class="btn-table"
+                      [disabled]="doc.availableSlots === 0"
+                      (click)="selectDoctor(doc)">
+                View Slots
+              </button>
+            </td>
+
+          </tr>
+        </tbody>
+      </table>
     </div>
- 
+  </div>
+</div>
+
     <!-- Time Slot Booking -->
     <div *ngIf="selectedDoctor" class="card">
       <div class="card-header">
