@@ -30,11 +30,15 @@ export class AppointmentService {
     return this.http.put(`${this.api}/appointment/${id}/status`, { status });
   }
 
-  getAvailableDoctors(specId: number, mode: string, date: string): Observable<any[]> {
-    const params = new HttpParams()
-      .set('specializationId', specId.toString())
-      .set('mode', mode)
-      .set('date', date);
-    return this.http.get<any[]>(`${this.api}/appointment/available-doctors`, { params });
-  }
+  getSpecializations() {
+  return this.http.get<any[]>("https://localhost:5001/api/Specialization");
+}
+
+getAvailableDoctors(filters: any) {
+  return this.http.get<any>(
+    "https://localhost:5199/api/Appointment/available-doctors",
+    { params: filters }
+  );
+}
+
 }

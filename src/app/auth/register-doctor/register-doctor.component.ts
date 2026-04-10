@@ -33,7 +33,7 @@ export class RegisterDoctorComponent implements OnInit {
       specializationId: [null, Validators.required],
       degree:           [''],
       experience:       [0],
-      mode:             ['', Validators.required]  // Online or Offline - STRICT RULE
+      mode:             ['', Validators.required]  // Online, Offline, or Both
     });
   }
 
